@@ -1,6 +1,6 @@
 # TABLA DE PROGRESIÓN — Método fotosilábico Palau (Anaya)
 
-**Estado: v1.0 — cerrada.** Extraída de la lectura visual de las tres cartillas (edición Anaya 2004/1999). Decisiones [D1]–[D6] resueltas por la docente. Lista de excepciones (§6) completa.
+**Estado: v1.1 — cerrada.** Extraída de la lectura visual de las tres cartillas (edición Anaya 2004/1999). Decisiones [D1]–[D6] resueltas por la docente. Lista de excepciones (§6) completa.
 
 Fuente de verdad del Proyecto. Ninguna conversación deduce la secuencia por su cuenta: si algo no está aquí, se pregunta.
 
@@ -116,8 +116,8 @@ Páginas 53–62: lecturas y poemas de repaso, sin elementos nuevos.
 - **[D3] RESUELTA — Se admiten desde el principio.** La tilde no cuenta como grafema nuevo: *á é í ó ú* valen lo mismo que su vocal desde L1.
 - **[D4] RESUELTA — Se sigue la progresión del método.** Interpretación aplicada:
   - **Ligada:** la mayúscula de una letra se admite desde la lección en que se introduce su minúscula, en inicio de frase y en nombres propios, como hace Palau desde L2 (*Amo, Mi, Mimí*).
-  - **Imprenta:** minúscula y mayúscula de imprenta solo desde su lección de imprenta: L12–L22 para las letras de la 1ª cartilla, L36–L45 para las de la 2ª. La ñ y la r suave no tienen lección de imprenta en Palau (ver §3).
-  - **Signos:** punto y coma desde L2; puntos suspensivos de completar desde L3; *¿ ? ¡ !* desde L23.
+  - **Imprenta:** minúscula y mayúscula de imprenta solo desde su lección de imprenta: L12–L22 para las letras de la 1ª cartilla, L36–L45 para las de la 2ª. La ñ y la r suave no tienen lección de imprenta; la 3ª cartilla ya las usa en sus textos de imprenta, así que en imprenta se admiten **desde L46**. Las sílabas inversas, mixtas y trabadas, en imprenta desde su propia lección.
+  - **Signos:** punto (.) y coma (,) desde L2; puntos suspensivos desde L3; dos puntos (:) desde L22; *¿ ? ¡ !* desde L23; el resto (punto y coma, guion, comillas, paréntesis) desde L46.
 - **[D5] RESUELTA — Se admiten, como aprendizaje incidental.** Las palabras que la cartilla usa antes de presentar alguno de sus elementos se admiten **como palabra concreta** desde la lección en que aparecen. No abren el grafema ni la estructura para otras palabras. Lista (ver §6).
 
 ---
