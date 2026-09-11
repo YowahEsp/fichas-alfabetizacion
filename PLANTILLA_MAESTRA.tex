@@ -1,6 +1,6 @@
 % ============================================================================
 %  PLANTILLA_MAESTRA.tex — Proyecto «Fichas de alfabetización» (EPA, método Palau)
-%  Versión 1.3 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
+%  Versión 1.4 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
 %
 %  TERMINOLOGÍA (definida por la docente):
 %    FICHA  = una cara de folio A4 completa, con todas las actividades que incluya.
@@ -94,8 +94,11 @@
 \newcommand{\lpalabras}[1]{%
   \par\noindent{\ligada\tamlectura\raggedright
   \foreach \w in {#1}{\w\hspace{1.6em plus 0.5em}}\par}\vskip 4mm}
-\newcommand{\lfrase}[1]{\par\noindent{\ligada\tamlectura #1}\par\vskip 6mm}
-\newcommand{\lparrafo}[1]{\par\noindent{\ligada\tamlectura #1}\par\vskip 5mm}
+% v1.4: el \par va dentro del grupo para que se aplique el interlineado de
+% \tamlectura (46 pt); antes quedaba fuera y la distancia entre frases variaba
+% según los rasgos descendentes de cada línea.
+\newcommand{\lfrase}[1]{\par\noindent{\ligada\tamlectura #1\par}\vskip 6mm}
+\newcommand{\lparrafo}[1]{\par\noindent{\ligada\tamlectura #1\par}\vskip 5mm}
 
 % ---- Separador de fichas: cada ficha es una página -----------------------
 \newcommand{\nuevaficha}{\clearpage}
