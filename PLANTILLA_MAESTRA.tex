@@ -1,0 +1,122 @@
+% ============================================================================
+%  PLANTILLA_MAESTRA.tex — Proyecto «Fichas de alfabetización» (EPA, método Palau)
+%  Versión 1.1 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
+%
+%  Compilación: XeLaTeX, una pasada. En la misma carpeta que este .tex:
+%    MemimaM.ttf, Mestra1M.ttf, Mestra2M.ttf
+%    (se reconstruyen desde /mnt/project/FUENTES_MEMIMA_BASE64.txt)
+%    y la carpeta pictos/ con los PNG de ARASAAC.
+%
+%  REGLAS FIJAS (acordadas con la docente; no se cambian sin preguntarle):
+%    · Familia Memima con mayúsculas habituales (de imprenta, tomadas de
+%      Abecedario): MemimaM (modelo, lectura), Mestra1M (renglón),
+%      Mestra2M (repaso). Nunca las Memima originales: sus mayúsculas son
+%      antiguas (T con forma de Z). No se mezcla con otras familias.
+%    · Pauta simple de doble línea, dibujada por el glifo del espacio.
+%      Nunca con \rule ni TikZ.
+%    · Sin recuadros alrededor de las fichas. Sin pie de página.
+%    · Ficha: pictograma a la izquierda, palabra modelo a la derecha,
+%      debajo 1 renglón de repaso + 2 renglones vacíos. Tres fichas por hoja.
+%    · Enunciados libres (para la docente), con pictograma fijo de la acción.
+%      No se validan.
+%    · TODO el texto del alumno va dentro de \ficha, \lpalabras, \lfrase o
+%      \lparrafo. El validador comprueba solo el contenido de esas macros.
+% ============================================================================
+\documentclass[a4paper]{article}
+\usepackage[margin=1.4cm]{geometry}
+\usepackage{fontspec,graphicx,xcolor,pgffor}
+\setmainfont{TeX Gyre Heros}
+\newfontface\cifras{TeX Gyre Pagella}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% ---- Fuentes de la familia Memima ------------------------------------------
+\newfontface\ligada{MemimaM.ttf}[Path=./]
+\newfontface\pautada{Mestra1M.ttf}[Path=./]
+\newfontface\punteada{Mestra2M.ttf}[Path=./]
+
+% ---- Parámetros (un solo sitio para cambiar tamaños) ------------------------
+% Pauta = 0,275 em del cuerpo. 1 mm de pauta ≈ 10,34 pt de cuerpo.
+\newlength{\cuerpopauta}  \setlength{\cuerpopauta}{62pt}   % pauta de 6 mm
+\newlength{\huecopauta}   \setlength{\huecopauta}{12mm}    % aire entre renglones
+\newlength{\huecoficha}   \setlength{\huecoficha}{9mm}     % aire entre fichas
+\newlength{\altopicto}    \setlength{\altopicto}{19mm}     % alto del pictograma
+\newcommand{\tammodelo}{\fontsize{38pt}{38pt}\selectfont}  % palabra modelo
+\newcommand{\tamlectura}{\fontsize{30pt}{46pt}\selectfont}  % hojas de lectura
+\newcommand{\maxrepasos}{3}                                % copias en el repaso
+
+% ---- Pauta ----------------------------------------------------------------
+\newcommand{\pautasize}{\fontsize{\cuerpopauta}{\cuerpopauta}\selectfont}
+\newcommand{\ps}{\char32 }            % espacio que SÍ dibuja pauta
+% Renglón de altura fija: la caja mide solo la pauta, así el texto (astas,
+% colas) no desplaza el renglón y todos quedan a la misma distancia.
+% #1 = fuente (\pautada o \punteada), #2 = texto
+\newcommand{\renglon}[2]{%
+  \par\nointerlineskip\vskip\huecopauta
+  \noindent\hbox to\linewidth{#1\pautasize
+    \vrule height 0.275\cuerpopauta depth 0pt width 0pt
+    \smash{#2}\xleaders\hbox{\char32}\hfill}\par}
+
+% Renglón de repaso: repite la palabra tantas veces como quepa (máx. \maxrepasos)
+\newcount\nrep \newcount\irep
+\newcommand{\repaso}[1]{%
+  \setbox0=\hbox{\punteada\pautasize #1\ps}%
+  \nrep=\numexpr(\number\linewidth - \number\wd0/2)/\number\wd0\relax
+  \ifnum\nrep>\maxrepasos\relax \nrep=\maxrepasos\relax\fi
+  \ifnum\nrep<1 \nrep=1 \fi
+  \renglon{\punteada}{\irep=0 \loop #1\ps\advance\irep by 1 \ifnum\irep<\nrep\repeat}}
+
+% ---- Ficha de lecto-escritura (Tipo A) ---------------------------------------
+% \ficha{pictograma}{palabra}   pictograma = nombre del PNG en pictos/ sin extensión
+\newcommand{\ficha}[2]{%
+  \par\noindent
+  \parbox[c][\altopicto]{30mm}{\includegraphics[height=\altopicto,width=26mm,keepaspectratio]{pictos/#1}}%
+  \hfill
+  \parbox[c]{0.6\linewidth}{\raggedleft{\ligada\tammodelo #2}\hspace*{4mm}}\par
+  \repaso{#2}%
+  \renglon{\pautada}{}%
+  \renglon{\pautada}{}%
+  \par\vskip\huecoficha}
+
+% ---- Hoja de lectura (Tipo B) ------------------------------------------------
+% \lpalabras{p1, p2, p3, ...}  palabras sueltas en columnas
+% \lfrase{texto}               una frase por línea
+% \lparrafo{texto}             párrafo corrido
+\newcommand{\lpalabras}[1]{%
+  \par\noindent{\ligada\tamlectura\raggedright
+  \foreach \w in {#1}{\w\hspace{1.6em plus 0.5em}}\par}\vskip 4mm}
+\newcommand{\lfrase}[1]{\par\noindent{\ligada\tamlectura #1}\par\vskip 6mm}
+\newcommand{\lparrafo}[1]{\par\noindent{\ligada\tamlectura #1}\par\vskip 5mm}
+
+% ---- Enunciado (libre, no validado) y atribución -------------------------
+% \enunciado{pictograma de la acción}{texto para la docente}
+\newcommand{\enunciado}[2]{%
+  \par\noindent\raisebox{-0.35\height}{\includegraphics[height=11mm]{pictos/#1}}%
+  \hspace{3mm}{\large #2}\par\vskip 4mm}
+\newcommand{\atribucion}{%
+  \vfill\noindent{\tiny\color{gray}Pictogramas: Sergio Palao. Origen: ARASAAC
+  (https://arasaac.org). Licencia: CC BY-NC-SA. Propiedad: Gobierno de Aragón.}}
+
+% ============================================================================
+%  EJEMPLO DE USO — sustituir desde aquí en cada entrega
+% ============================================================================
+\begin{document}
+
+% ---------- Tipo A: tres fichas por hoja ----------
+\enunciado{accion_escribir}{Repasa y escribe.}
+\ficha{mano}{Ana}
+\ficha{moto}{Lola}
+\ficha{tomate}{tomate}
+\atribucion
+\newpage
+
+% ---------- Tipo B: hoja de lectura ----------
+\enunciado{accion_leer}{Lee.}
+\lpalabras{mano, moto, tomate, Mateo, pala}
+\vskip 6mm
+\lfrase{Mi mamá toma té.}
+\lfrase{Ana tiene una moto.}
+\lfrase{Lola toma la pala.}
+\atribucion
+
+\end{document}

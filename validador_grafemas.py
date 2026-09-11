@@ -13,6 +13,7 @@ Uso:
     python3 validador_grafemas.py -l 9 -f vocabulario.txt
     python3 validador_grafemas.py -l 40 --imprenta -f frases.txt
     python3 validador_grafemas.py -l 9 --explicar rueda
+    python3 validador_grafemas.py -l 4 --tex FICHA_LE_m_01.tex
     python3 validador_grafemas.py --inventario 9
 
 Código de salida: 0 si todo se admite, 1 si hay rechazos, 2 si hay error de uso
@@ -364,6 +365,55 @@ def validar(texto, leccion, tabla, imprenta=False):
     return rechazos
 
 
+# ----------------------------------------------------------------------------
+# Extracción del texto del alumno desde un .tex hecho con la plantilla maestra
+# ----------------------------------------------------------------------------
+MACROS_ALUMNO = {"ficha": 2, "lpalabras": 1, "lfrase": 1, "lparrafo": 1}  # nº de argumento
+
+
+def _argumentos(tex, pos, n):
+    """Lee n argumentos {…} desde pos. Devuelve lista de textos o None."""
+    args = []
+    for _ in range(n):
+        while pos < len(tex) and tex[pos] in " \t\n":
+            pos += 1
+        if pos >= len(tex) or tex[pos] != "{":
+            return None
+        nivel, ini = 0, pos
+        while pos < len(tex):
+            if tex[pos] == "\\":
+                pos += 2; continue
+            if tex[pos] == "{": nivel += 1
+            elif tex[pos] == "}":
+                nivel -= 1
+                if nivel == 0:
+                    break
+            pos += 1
+        args.append(tex[ini + 1:pos]); pos += 1
+    return args
+
+
+def texto_alumno_tex(tex):
+    """Devuelve el texto del alumno contenido en las macros de la plantilla."""
+    tex = re.sub(r"(?<!\\)%.*", "", tex)                 # comentarios
+    i = tex.find("\\begin{document}")
+    cuerpo = tex[i:] if i >= 0 else tex
+    trozos = []
+    for m in re.finditer(r"\\(ficha|lpalabras|lfrase|lparrafo)(?![a-zA-Z])", cuerpo):
+        n = MACROS_ALUMNO[m.group(1)]
+        args = _argumentos(cuerpo, m.end(), n)
+        if args is None:
+            continue
+        t = args[-1]
+        t = re.sub(r"\\(ps|char32)\s*", " ", t)          # espacios con pauta
+        t = re.sub(r"\\[a-zA-Z]+\*?(\[[^\]]*\])?", " ", t)  # otras órdenes
+        t = t.replace("{", " ").replace("}", " ").replace("~", " ")
+        if m.group(1) == "lpalabras":
+            t = t.replace(",", " ")                       # la coma separa, no se lee
+        trozos.append(t)
+    return "\n".join(trozos)
+
+
 def inventario(leccion, tabla):
     g = sorted([k for k, v in tabla.grafema.items() if v <= leccion],
                key=lambda k: tabla.grafema[k])
@@ -383,6 +433,7 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("-l", "--leccion", type=int, help="lección alcanzada (1–72)")
     ap.add_argument("-f", "--fichero", help="archivo de texto con el vocabulario o las frases")
+    ap.add_argument("--tex", help="archivo .tex hecho con la plantilla maestra (valida solo el texto del alumno)")
     ap.add_argument("--imprenta", action="store_true", help="el texto irá en letra de imprenta")
     ap.add_argument("--tabla", help="ruta de TABLA_PROGRESION.md (por defecto, junto al script o en GitHub)")
     ap.add_argument("--explicar", action="store_true", help="muestra el análisis de cada palabra")
@@ -402,6 +453,13 @@ def main():
     texto = " ".join(a.palabras)
     if a.fichero:
         texto += "\n" + open(a.fichero, encoding="utf-8").read()
+    if a.tex:
+        extraido = texto_alumno_tex(open(a.tex, encoding="utf-8").read())
+        if not extraido.strip():
+            print("ERROR: el .tex no contiene texto del alumno en las macros de la plantilla.",
+                  file=sys.stderr)
+            return 2
+        texto += "\n" + extraido
     if a.explicar:
         for w in dict.fromkeys(re.findall(rf"[{LETRAS}]+", texto)):
             L, req = leccion_minima(w, tabla, a.imprenta)

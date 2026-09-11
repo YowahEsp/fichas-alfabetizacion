@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Banco de pruebas del validador. Uso: python3 test_validador.py"""
 import sys
-from validador_grafemas import cargar_tabla, leccion_minima, validar
+from validador_grafemas import cargar_tabla, leccion_minima, validar, texto_alumno_tex
 T = cargar_tabla()
 # (palabra, lección mínima en ligada, por qué)
 CASOS = [
@@ -55,6 +55,20 @@ for w, L, ok in [("mamá", 12, False), ("mamá", 13, True), ("bota", 24, False),
     if (not r) != ok:
         fallos += 1
         print(f"FALLO imprenta «{w}» en L{L}: esperado {'admitido' if ok else 'rechazado'} → {r}")
-total = len(CASOS) + len(pruebas_texto) + 8
+# Extracción desde .tex: solo el texto del alumno, nunca los enunciados
+TEX = r"""\newcommand{\ficha}[2]{x}
+\begin{document}
+\enunciado{accion_escribir}{Repasa y escribe.}   % no se valida
+\ficha{mano}{mano}
+\lpalabras{moto, tomate}
+\lfrase{Mi mamá toma té.}
+\end{document}"""
+ext = texto_alumno_tex(TEX)
+extraccion_ok = ("Repasa" not in ext and "mano" in ext and "tomate" in ext
+                 and "," not in ext.split("\n")[1] and not validar(ext, 4, T))
+if not extraccion_ok:
+    fallos += 1
+    print(f"FALLO extracción .tex → {ext!r}")
+total = len(CASOS) + len(pruebas_texto) + 8 + 1
 print(f"{total - fallos}/{total} pruebas superadas.")
 sys.exit(1 if fallos else 0)
