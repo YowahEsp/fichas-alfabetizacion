@@ -1,6 +1,12 @@
 % ============================================================================
 %  PLANTILLA_MAESTRA.tex — Proyecto «Fichas de alfabetización» (EPA, método Palau)
-%  Versión 1.1 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
+%  Versión 1.3 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
+%
+%  TERMINOLOGÍA (definida por la docente):
+%    FICHA  = una cara de folio A4 completa, con todas las actividades que incluya.
+%             «Tres fichas» = tres páginas. Cada ficha empieza con \nuevaficha.
+%    BLOQUE = cada palabra de trabajo dentro de una ficha de tipo A
+%             (pictograma + modelo + repaso + 2 renglones). Tres bloques por ficha.
 %
 %  Compilación: XeLaTeX, una pasada. En la misma carpeta que este .tex:
 %    MemimaM.ttf, Mestra1M.ttf, Mestra2M.ttf
@@ -15,11 +21,11 @@
 %    · Pauta simple de doble línea, dibujada por el glifo del espacio.
 %      Nunca con \rule ni TikZ.
 %    · Sin recuadros alrededor de las fichas. Sin pie de página.
-%    · Ficha: pictograma a la izquierda, palabra modelo a la derecha,
-%      debajo 1 renglón de repaso + 2 renglones vacíos. Tres fichas por hoja.
+%    · Bloque: pictograma a la izquierda, palabra modelo a la derecha,
+%      debajo 1 renglón de repaso + 2 renglones vacíos. Tres bloques por ficha.
 %    · Enunciados libres (para la docente), con pictograma fijo de la acción.
 %      No se validan.
-%    · TODO el texto del alumno va dentro de \ficha, \lpalabras, \lfrase o
+%    · TODO el texto del alumno va dentro de \bloque, \lpalabras, \lfrase o
 %      \lparrafo. El validador comprueba solo el contenido de esas macros.
 % ============================================================================
 \documentclass[a4paper]{article}
@@ -39,7 +45,7 @@
 % Pauta = 0,275 em del cuerpo. 1 mm de pauta ≈ 10,34 pt de cuerpo.
 \newlength{\cuerpopauta}  \setlength{\cuerpopauta}{62pt}   % pauta de 6 mm
 \newlength{\huecopauta}   \setlength{\huecopauta}{12mm}    % aire entre renglones
-\newlength{\huecoficha}   \setlength{\huecoficha}{9mm}     % aire entre fichas
+\newlength{\huecobloque}  \setlength{\huecobloque}{9mm}    % aire entre bloques
 \newlength{\altopicto}    \setlength{\altopicto}{19mm}     % alto del pictograma
 \newcommand{\tammodelo}{\fontsize{38pt}{38pt}\selectfont}  % palabra modelo
 \newcommand{\tamlectura}{\fontsize{30pt}{46pt}\selectfont}  % hojas de lectura
@@ -48,6 +54,8 @@
 % ---- Pauta ----------------------------------------------------------------
 \newcommand{\pautasize}{\fontsize{\cuerpopauta}{\cuerpopauta}\selectfont}
 \newcommand{\ps}{\char32 }            % espacio que SÍ dibuja pauta
+% v1.2: la pauta se dibuja de fondo a todo el ancho y el texto va encima, para
+% que el renglón de repaso acabe en el mismo punto que los vacíos.
 % Renglón de altura fija: la caja mide solo la pauta, así el texto (astas,
 % colas) no desplaza el renglón y todos quedan a la misma distancia.
 % #1 = fuente (\pautada o \punteada), #2 = texto
@@ -55,7 +63,8 @@
   \par\nointerlineskip\vskip\huecopauta
   \noindent\hbox to\linewidth{#1\pautasize
     \vrule height 0.275\cuerpopauta depth 0pt width 0pt
-    \smash{#2}\xleaders\hbox{\char32}\hfill}\par}
+    \rlap{\hbox to\linewidth{\xleaders\hbox{\char32}\hfill}}%  pauta de fondo a ancho completo
+    \smash{#2}\hfill}\par}
 
 % Renglón de repaso: repite la palabra tantas veces como quepa (máx. \maxrepasos)
 \newcount\nrep \newcount\irep
@@ -66,9 +75,9 @@
   \ifnum\nrep<1 \nrep=1 \fi
   \renglon{\punteada}{\irep=0 \loop #1\ps\advance\irep by 1 \ifnum\irep<\nrep\repeat}}
 
-% ---- Ficha de lecto-escritura (Tipo A) ---------------------------------------
-% \ficha{pictograma}{palabra}   pictograma = nombre del PNG en pictos/ sin extensión
-\newcommand{\ficha}[2]{%
+% ---- Bloque de trabajo de la ficha de lecto-escritura (Tipo A) -----------------
+% \bloque{pictograma}{palabra}  pictograma = nombre del PNG en pictos/ sin extensión
+\newcommand{\bloque}[2]{%
   \par\noindent
   \parbox[c][\altopicto]{30mm}{\includegraphics[height=\altopicto,width=26mm,keepaspectratio]{pictos/#1}}%
   \hfill
@@ -76,7 +85,7 @@
   \repaso{#2}%
   \renglon{\pautada}{}%
   \renglon{\pautada}{}%
-  \par\vskip\huecoficha}
+  \par\vskip\huecobloque}
 
 % ---- Hoja de lectura (Tipo B) ------------------------------------------------
 % \lpalabras{p1, p2, p3, ...}  palabras sueltas en columnas
@@ -87,6 +96,9 @@
   \foreach \w in {#1}{\w\hspace{1.6em plus 0.5em}}\par}\vskip 4mm}
 \newcommand{\lfrase}[1]{\par\noindent{\ligada\tamlectura #1}\par\vskip 6mm}
 \newcommand{\lparrafo}[1]{\par\noindent{\ligada\tamlectura #1}\par\vskip 5mm}
+
+% ---- Separador de fichas: cada ficha es una página -----------------------
+\newcommand{\nuevaficha}{\clearpage}
 
 % ---- Enunciado (libre, no validado) y atribución -------------------------
 % \enunciado{pictograma de la acción}{texto para la docente}
@@ -102,15 +114,15 @@
 % ============================================================================
 \begin{document}
 
-% ---------- Tipo A: tres fichas por hoja ----------
+% ---------- Ficha 1 · Tipo A: tres bloques ----------
 \enunciado{accion_escribir}{Repasa y escribe.}
-\ficha{mano}{Ana}
-\ficha{moto}{Lola}
-\ficha{tomate}{tomate}
+\bloque{mano}{Ana}
+\bloque{moto}{Lola}
+\bloque{tomate}{tomate}
 \atribucion
-\newpage
 
-% ---------- Tipo B: hoja de lectura ----------
+% ---------- Ficha 2 · Tipo B: hoja de lectura ----------
+\nuevaficha
 \enunciado{accion_leer}{Lee.}
 \lpalabras{mano, moto, tomate, Mateo, pala}
 \vskip 6mm

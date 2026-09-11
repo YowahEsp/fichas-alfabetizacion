@@ -368,7 +368,7 @@ def validar(texto, leccion, tabla, imprenta=False):
 # ----------------------------------------------------------------------------
 # Extracción del texto del alumno desde un .tex hecho con la plantilla maestra
 # ----------------------------------------------------------------------------
-MACROS_ALUMNO = {"ficha": 2, "lpalabras": 1, "lfrase": 1, "lparrafo": 1}  # nº de argumento
+MACROS_ALUMNO = {"bloque": 2, "ficha": 2, "lpalabras": 1, "lfrase": 1, "lparrafo": 1}  # «ficha»: plantillas ≤ v1.2
 
 
 def _argumentos(tex, pos, n):
@@ -399,7 +399,7 @@ def texto_alumno_tex(tex):
     i = tex.find("\\begin{document}")
     cuerpo = tex[i:] if i >= 0 else tex
     trozos = []
-    for m in re.finditer(r"\\(ficha|lpalabras|lfrase|lparrafo)(?![a-zA-Z])", cuerpo):
+    for m in re.finditer(r"\\(bloque|ficha|lpalabras|lfrase|lparrafo)(?![a-zA-Z])", cuerpo):
         n = MACROS_ALUMNO[m.group(1)]
         args = _argumentos(cuerpo, m.end(), n)
         if args is None:
@@ -456,7 +456,7 @@ def main():
     if a.tex:
         extraido = texto_alumno_tex(open(a.tex, encoding="utf-8").read())
         if not extraido.strip():
-            print("ERROR: el .tex no contiene texto del alumno en las macros de la plantilla.",
+            print("ERROR: el .tex no contiene texto del alumno en \\bloque, \\lpalabras, \\lfrase ni \\lparrafo.",
                   file=sys.stderr)
             return 2
         texto += "\n" + extraido

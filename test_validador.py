@@ -56,10 +56,10 @@ for w, L, ok in [("mamá", 12, False), ("mamá", 13, True), ("bota", 24, False),
         fallos += 1
         print(f"FALLO imprenta «{w}» en L{L}: esperado {'admitido' if ok else 'rechazado'} → {r}")
 # Extracción desde .tex: solo el texto del alumno, nunca los enunciados
-TEX = r"""\newcommand{\ficha}[2]{x}
+TEX = r"""\newcommand{\bloque}[2]{x}
 \begin{document}
 \enunciado{accion_escribir}{Repasa y escribe.}   % no se valida
-\ficha{mano}{mano}
+\bloque{mano}{mano}
 \lpalabras{moto, tomate}
 \lfrase{Mi mamá toma té.}
 \end{document}"""
