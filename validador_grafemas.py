@@ -368,12 +368,19 @@ def validar(texto, leccion, tabla, imprenta=False):
 # ----------------------------------------------------------------------------
 # Extracción del texto del alumno desde un .tex hecho con la plantilla maestra
 # ----------------------------------------------------------------------------
-MACROS_ALUMNO = {"bloque": 2, "ficha": 2, "lpalabras": 1, "lfrase": 1, "lparrafo": 1}  # «ficha»: plantillas ≤ v1.2
+MACROS_ALUMNO = {"bloque": 2, "bloquefrase": 2, "ficha": 2, "lpalabras": 1,
+                 "lfrase": 1, "lparrafo": 1}  # «ficha»: plantillas ≤ v1.2
 
 
 def _argumentos(tex, pos, n):
     """Lee n argumentos {…} desde pos. Devuelve lista de textos o None."""
     args = []
+    while pos < len(tex) and tex[pos] in " \t\n":
+        pos += 1
+    if pos < len(tex) and tex[pos] == "[":          # argumento opcional: se ignora
+        cierre = tex.find("]", pos)
+        if cierre > 0:
+            pos = cierre + 1
     for _ in range(n):
         while pos < len(tex) and tex[pos] in " \t\n":
             pos += 1
@@ -399,7 +406,7 @@ def texto_alumno_tex(tex):
     i = tex.find("\\begin{document}")
     cuerpo = tex[i:] if i >= 0 else tex
     trozos = []
-    for m in re.finditer(r"\\(bloque|ficha|lpalabras|lfrase|lparrafo)(?![a-zA-Z])", cuerpo):
+    for m in re.finditer(r"\\(bloquefrase|bloque|ficha|lpalabras|lfrase|lparrafo)(?![a-zA-Z])", cuerpo):
         n = MACROS_ALUMNO[m.group(1)]
         args = _argumentos(cuerpo, m.end(), n)
         if args is None:
@@ -456,7 +463,8 @@ def main():
     if a.tex:
         extraido = texto_alumno_tex(open(a.tex, encoding="utf-8").read())
         if not extraido.strip():
-            print("ERROR: el .tex no contiene texto del alumno en \\bloque, \\lpalabras, \\lfrase ni \\lparrafo.",
+            print("ERROR: el .tex no contiene texto del alumno en \\bloque, \\bloquefrase, "
+                  "\\lpalabras, \\lfrase ni \\lparrafo.",
                   file=sys.stderr)
             return 2
         texto += "\n" + extraido

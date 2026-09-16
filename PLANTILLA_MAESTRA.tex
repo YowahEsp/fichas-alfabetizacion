@@ -1,12 +1,13 @@
 % ============================================================================
 %  PLANTILLA_MAESTRA.tex — Proyecto «Fichas de alfabetización» (EPA, método Palau)
-%  Versión 1.4 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
+%  Versión 1.6 — familia Memima con mayúsculas habituales (MemimaM, Mestra1M, Mestra2M)
 %
 %  TERMINOLOGÍA (definida por la docente):
 %    FICHA  = una cara de folio A4 completa, con todas las actividades que incluya.
 %             «Tres fichas» = tres páginas. Cada ficha empieza con \nuevaficha.
-%    BLOQUE = cada palabra de trabajo dentro de una ficha de tipo A
-%             (pictograma + modelo + repaso + 2 renglones). Tres bloques por ficha.
+%    BLOQUE = cada unidad de trabajo dentro de una ficha de tipo A:
+%             \bloque  = pictograma + palabra modelo + repaso + 2 renglones.
+%             \bloquefrase = pictograma + frase modelo + renglones para copiarla.
 %
 %  Compilación: XeLaTeX, una pasada. En la misma carpeta que este .tex:
 %    MemimaM.ttf, Mestra1M.ttf, Mestra2M.ttf
@@ -21,10 +22,23 @@
 %    · Pauta simple de doble línea, dibujada por el glifo del espacio.
 %      Nunca con \rule ni TikZ.
 %    · Sin recuadros alrededor de las fichas. Sin pie de página.
-%    · Bloque: pictograma a la izquierda, palabra modelo a la derecha,
+%    · \bloque: pictograma a la izquierda, palabra modelo a la derecha,
 %      debajo 1 renglón de repaso + 2 renglones vacíos. Tres bloques por ficha.
+%    · \bloquefrase (copiar una frase): pictograma a la izquierda; la frase
+%      modelo va AL TAMAÑO DE ESCRITURA (las letras sin asta encajan en la
+%      pauta) y empieza justo donde el alumno escribirá, para que copie
+%      palabra debajo de palabra. Nunca se reduce el modelo: si la frase no
+%      cabe, se acorta (la compilación avisa con Overfull).
 %    · Enunciados libres (para la docente), con pictograma fijo de la acción.
 %      No se validan.
+%    · La ficha APROVECHA TODA LA HOJA: se ajusta el número de bloques, frases
+%      o renglones hasta llenar el A4, sin huecos grandes en blanco.
+%      Capacidad con pauta de 6 mm y un enunciado (medida, no estimada):
+%        \bloque       → 3 por hoja
+%        \bloquefrase  → 3 por hoja con 2 renglones; 2 por hoja con 3 renglones
+%        \lfrase       → 11 por hoja
+%      Si la petición pide menos, se reparte el sobrante subiendo el número de
+%      renglones, no dejándolo en blanco.
 %    · TODO el texto del alumno va dentro de \bloque, \lpalabras, \lfrase o
 %      \lparrafo. El validador comprueba solo el contenido de esas macros.
 % ============================================================================
@@ -100,6 +114,24 @@
 \newcommand{\lfrase}[1]{\par\noindent{\ligada\tamlectura #1\par}\vskip 6mm}
 \newcommand{\lparrafo}[1]{\par\noindent{\ligada\tamlectura #1\par}\vskip 5mm}
 
+% ---- Bloque de copiar una frase (Tipo A) --------------------------------------
+% \bloquefrase[nº de renglones]{pictograma}{frase}
+% La frase modelo se compone con la misma letra y el mismo cuerpo que el renglón,
+% y a la misma sangría, de modo que cada palabra cae donde el alumno la escribirá.
+\newlength{\sangriafrase}\setlength{\sangriafrase}{30mm}  % hueco del pictograma
+\newlength{\anchoescritura}
+\newcommand{\bloquefrase}[3][2]{%
+  \setlength{\anchoescritura}{\dimexpr\linewidth-\sangriafrase\relax}%
+  \par\noindent
+  \parbox[c][\altopicto]{\sangriafrase}{\includegraphics[height=\altopicto,width=26mm,keepaspectratio]{pictos/#2}}%
+  \parbox[c]{\anchoescritura}{\ligada\pautasize
+    \spaceskip=0.4\cuerpopauta\relax                % espacio igual al de la pauta
+    \hbox to \anchoescritura{\strut #3\hfill}}\par
+  \hspace*{\sangriafrase}\parbox{\anchoescritura}{%
+    \newcount\irenglon \irenglon=0
+    \loop\renglon{\pautada}{}\advance\irenglon by 1 \ifnum\irenglon<#1\repeat}%
+  \par\vskip\huecobloque}
+
 % ---- Separador de fichas: cada ficha es una página -----------------------
 \newcommand{\nuevaficha}{\clearpage}
 
@@ -124,14 +156,29 @@
 \bloque{tomate}{tomate}
 \atribucion
 
-% ---------- Ficha 2 · Tipo B: hoja de lectura ----------
+% ---------- Ficha 2 · Tipo A: copiar frases ----------
+\nuevaficha
+\enunciado{accion_escribir}{Lee la frase y cópiala.}
+\bloquefrase[3]{sopa}{Ana toma sopa.}
+\bloquefrase[3]{mesa}{Nati pone la mesa.}
+\bloquefrase{sopa}{Mi tía pide sopa.}
+\atribucion
+
+% ---------- Ficha 3 · Tipo B: hoja de lectura ----------
 \nuevaficha
 \enunciado{accion_leer}{Lee.}
 \lpalabras{mano, moto, tomate, Mateo, pala}
-\vskip 6mm
-\lfrase{Mi mamá toma té.}
-\lfrase{Ana tiene una moto.}
-\lfrase{Lola toma la pala.}
+\vskip 4mm
+\lfrase{Mi esposa es de Toledo.}
+\lfrase{El piso de Lidia tiene patio.}
+\lfrase{Toni pone la mesa.}
+\lfrase{Adela pide sopa de tomate.}
+\lfrase{La sopa está sosa.}
+\lfrase{Me duele la muela.}
+\lfrase{Mateo lee la nómina.}
+\lfrase{Susana sale de paseo.}
+\lfrase{Este es tu sitio.}
+\lfrase{La maleta pesa demasiado.}
 \atribucion
 
 \end{document}

@@ -60,12 +60,13 @@ TEX = r"""\newcommand{\bloque}[2]{x}
 \begin{document}
 \enunciado{accion_escribir}{Repasa y escribe.}   % no se valida
 \bloque{mano}{mano}
+\bloquefrase[2]{sopa}{Ana toma sopa.}
 \lpalabras{moto, tomate}
 \lfrase{Mi mamá toma té.}
 \end{document}"""
 ext = texto_alumno_tex(TEX)
-extraccion_ok = ("Repasa" not in ext and "mano" in ext and "tomate" in ext
-                 and "," not in ext.split("\n")[1] and not validar(ext, 4, T))
+extraccion_ok = ("Repasa" not in ext and "mano" in ext and "tomate" in ext and "Ana toma sopa." in ext
+                 and "," not in ext.split("\n")[2] and not validar(ext, 8, T))
 if not extraccion_ok:
     fallos += 1
     print(f"FALLO extracción .tex → {ext!r}")
