@@ -1,0 +1,29 @@
+# Fuentes de uso privado del Proyecto: NUNCA se suben aquí.
+# Se reconstruyen desde FUENTES_MEMIMA_BASE64.txt, que está en los archivos del
+# Proyecto, no en este repositorio. Las de fuentes/ (Abecedario, GPL-2) sí se suben.
+MemimaM.ttf
+Mestra1M.ttf
+Mestra2M.ttf
+Memima.ttf
+Mestra1*.TTF
+Mestra2*.TTF
+Mestra4*.TTF
+Escolar*.TTF
+escolar*.ttf
+massallera.ttf
+Garabatos*.ttf
+FUENTES_MEMIMA_BASE64.txt
+
+# Pictogramas de ARASAAC descargados al trabajar (licencia CC BY-NC-SA)
+pictos/
+
+# Material entregado y restos de compilación
+*.pdf
+*.aux
+*.log
+*.out
+*.synctex.gz
+FICHA_LE_*
+HOJA_LECTURA_*
+CRUCIGRAMA*
+__pycache__/
